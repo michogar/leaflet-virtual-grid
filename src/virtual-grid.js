@@ -31,58 +31,12 @@
 			L.Util.setOptions(this, options);
 		},
 
- 		/**
- 		 * Can override this method with the functionality needed
- 		 * 
- 		 * @param {Event} e
- 		 */
-		onNewCells : function(e) {
-			var this_ = e.target;
-			for (var i = 0; i < e.cells.length; i++) {
-				var cell = e.cells[i];
-				(function(cell, i) {
-					setTimeout(function() {
-						
-						var layer = L.rectangle(cell.bounds, {
-							color : '#3ac1f0',
-							weight : 2,
-							opacity : 0.5,
-							fillOpacity : 0.25
-						});
-
-						this_.cellsLayer.addLayer(layer);
-
-						// debug.addLayer(L.circle(cell.center,cell.radius, {
-						//   color: '#3ac1f0',
-						//   weight: 2,
-						//   opacity: 0.5,
-						//   fillOpacity: 0.25
-						// }));
-
-					}, i);
-				})(cell, i);
-			}
-		},
-
-		/**
- 		 * Can override this method with the functionality needed
- 		 * 
- 		 * @param {Event} e
- 		 */
-		onClearCells : function(e) {
-			var this_ = e.target;
-			this_.cellsLayer.clearLayers();
-		},
-
 		onAdd : function(map) {
 			this.cellsLayer = L.layerGroup();
 			this._map = map;
 			this.cellsLayer.addTo(map);
 			this.center = this._map.getCenter();
 			this.origin = this._map.project(this.center);
-
-			this.on("newcells", this.onNewCells);
-			this.on("clearcells", this.onClearCells);
 
 			this.handler = this.debounce(function(e) {
 				if (e.type === "zoomend") {
