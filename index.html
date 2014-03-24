@@ -33,7 +33,7 @@
 			L.Path.CLIP_PADDING = 10;
 
 			// Make a Map
-			var map = L.map('map').setView([45.5276173643906, -122.66736388203228], 13);
+			var map = L.map('map').setView([45.5276173643906, -122.66736388203228], 16);
 
 			// add our BasemapLayer
 			var tiles = L.esri.basemapLayer("Gray").addTo(map);
@@ -43,7 +43,7 @@
 
 			// make a new VirtualGrid
 			var virtualGrid = L.virtualGrid({
-				cellSize : 512
+				cellSizeMeters : 250
 			});
 
 			/**
@@ -90,6 +90,8 @@
 			});
 
 			virtualGrid.addTo(map);
+			
+			new L.control.scale().addTo(map);
 
 		</script>
 	</body>

@@ -2,15 +2,44 @@
 
 	L.VirtualGrid = L.Class.extend({
 
+		R : 6378137,
+
+		project : function(latlng) {
+			var d = Math.PI / 180, max = 1 - 1E-15, sin = Math.max(Math.min(Math.sin(latlng.lat * d), max), -max);
+
+			return new L.Point(this.R * latlng.lng * d, this.R * Math.log((1 + sin) / (1 - sin)) / 2);
+		},
+
+		unproject : function(point) {
+			var d = 180 / Math.PI;
+
+			return new L.LatLng((2 * Math.atan(Math.exp(point.y / this.R)) - (Math.PI / 2)) * d, point.x * d / this.R);
+		},
+
 		includes : L.Mixin.Events,
 
 		options : {
-			cellSize : 512,
 			debounce : 100,
-			deduplicate : true
+			deduplicate : true,
+			cellSizeMeters : 250
 		},
 
 		_previousCells : [],
+
+		calculateCellSize : function() {
+
+			var latLngA = this._map.getCenter();
+
+			var pointA = this.project(latLngA);
+			var pointB = L.point(pointA.x + this.options.cellSizeMeters, pointA.y);
+			var latLngB = this.unproject(pointB);
+			
+			var pixelPointA = this._map.latLngToLayerPoint(latLngA);
+			var pixelPointB = this._map.latLngToLayerPoint(latLngB);
+			
+			this.options.cellSize = pixelPointB.x -pixelPointA.x;
+
+		},
 
 		roundAwayFromZero : function(num) {
 			return (num > 0) ? Math.ceil(num) : Math.floor(num);
@@ -57,6 +86,7 @@
 		},
 
 		cellsWithin : function(mapBounds) {
+			this.calculateCellSize();
 			var size = this._map.getSize();
 			var offset = this._map.project(this._map.getCenter());
 			var padding = Math.min(this.options.cellSize / size.x, this.options.cellSize / size.y);
